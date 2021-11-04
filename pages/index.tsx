@@ -1,26 +1,17 @@
 import type { NextPage } from 'next';
 import { GetServerSideProps } from "next";
 import { Button, Col, Layout, Row, Table, TableColumnsType, Tag, Typography } from "antd";
-import nookies from "nookies";
-import { firebaseAdmin } from "../lib/firebaseAdmin";
-import { DownloadOutlined } from "@ant-design/icons";
-import { generateAndDownloadPDF } from "../lib/pdf";
-import Link from "next/link"
+import Link from "next/link";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   try {
-    const cookies = nookies.get(ctx);
-    await firebaseAdmin.auth().verifyIdToken(cookies.token);
-
-    const reports = await firebaseAdmin.firestore().collection("reports").get();
-
+    const response = await fetch(process.env.NEXT_PUBLIC_API_AUTH + "/students", { headers: ctx.req && { Authorization: "Bearer " + ctx.req.cookies.token ?? "" } });
+    if (!response.ok) throw new Error(response.statusText);
+    const json = await response.json();
 
     return {
       props: {
-        reports: reports.docs.map((data) => {
-          const { date, ...rest } = data.data();
-          return { ...rest, date: date.toString() };
-        })
+        students: json
       }
     };
   } catch (err) {
@@ -39,33 +30,18 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   }
 };
 
-const Home: NextPage<any> = ({ reports }) => {
-
-
+const Home: NextPage<any> = ({ students }) => {
   const columns: TableColumnsType<any> = [
     {
       title: 'Élève',
-      dataIndex: 'studentName',
-      key: 'studentName',
-    },
-    {
-      title: 'Classe',
-      dataIndex: 'grade',
-      key: 'grade',
-    },
-    {
-      title: 'Personnes présentes',
-      dataIndex: 'peoplePresent',
-      key: 'peoplePresent',
-      render: (peoplePresents: any[]) => peoplePresents.map(peoplePresent => <Tag
-        key={ peoplePresent }>{ peoplePresent }</Tag>)
+      dataIndex: 'fullName',
+      key: 'fullName',
     },
     {
       title: "Action",
       dataIndex: "",
       key: "action",
-      render: (a, b, index) => <Button onClick={ () => generateAndDownloadPDF(reports[index]) } shape="circle"
-                                       icon={ <DownloadOutlined/> }/>
+      render: (a, b) => <Link href={`/students/${b.fullName}`}><a>Voir</a></Link>
     },
   ];
 
@@ -83,10 +59,9 @@ const Home: NextPage<any> = ({ reports }) => {
         </Row>
 
 
-
       </Layout.Header>
       <Layout.Content>
-        <Table columns={ columns } dataSource={ reports }/>
+        <Table columns={ columns } dataSource={ students }/>
       </Layout.Content>
     </Layout>
   );
