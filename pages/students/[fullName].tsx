@@ -12,6 +12,11 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     const response = await fetch(process.env.NEXT_PUBLIC_API_AUTH + "/reports/" + fullName, { headers: ctx.req && { Authorization: "Bearer " + ctx.req.cookies.token ?? "" } });
     if (!response.ok) throw new Error(response.statusText);
     const json = await response.json();
+    if (json.length === 0) {
+      ctx.res?.writeHead(302, { Location: "/" });
+      ctx.res.end();
+      return { props: {} as never };
+    }
     return {
       props: {
         years: json.map((year: any) => ({ fromTo: `${ year.from } - ${ year.to }`, ...year })),
