@@ -1,7 +1,9 @@
-import { Button, Col, Layout, Row, Table, TableColumnsType, Typography } from "antd";
+import { Alert, Button, Col, Divider, Layout, Popconfirm, Row, Table, TableColumnsType, Typography } from "antd";
 import { GetServerSideProps, NextPage } from "next";
 import nookies from "nookies";
 import Head from "next/head";
+import requestMaker from "../../lib/requestMaker";
+import { useRouter } from "next/router";
 
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
@@ -38,6 +40,7 @@ type Props = {
 };
 
 const StudentPage: NextPage<Props> = ({ years, fullName }) => {
+  const router = useRouter();
 
   async function download(from: number, to: number) {
     const { token } = nookies.get(null);
@@ -69,6 +72,16 @@ const StudentPage: NextPage<Props> = ({ years, fullName }) => {
     },
   ];
 
+  async function deleteStudent() {
+    try {
+      await requestMaker("/students/" + fullName, { method: "DELETE" });
+      await router.push("/");
+    } catch (e) {
+      alert("Une erreur est survenue lors de la suppression de cet élève");
+      console.error({ e });
+    }
+  }
+
   return (
     <Layout style={ { minHeight: "100vh" } }>
       <Head><title>Rapports de { fullName }</title></Head>
@@ -85,6 +98,16 @@ const StudentPage: NextPage<Props> = ({ years, fullName }) => {
       </Layout.Header>
       <Layout.Content>
         <Table columns={ columns } dataSource={ years }/>
+        <Divider/>
+        <Alert showIcon message="Zone de Danger"
+               description={ `Utilisez ce bouton afin de supprimer définitivement toutes les données associées à ${ fullName }.` }
+               type="error" action={
+          <Popconfirm onConfirm={ deleteStudent } okText="Oui"
+                      title={ `Voulez-vous vraiment supprimer définitivement toutes les données associées à ${ fullName } ?` }>
+            <Button danger>Supprimer</Button>
+          </Popconfirm>
+
+        }/>
       </Layout.Content>
     </Layout>
   );
