@@ -1,6 +1,7 @@
 import { Button, Col, Layout, Row, Table, TableColumnsType, Typography } from "antd";
 import { GetServerSideProps, NextPage } from "next";
 import nookies from "nookies";
+import Head from "next/head";
 
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
@@ -32,14 +33,14 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 };
 
 type Props = {
-  years: {from: number, to: number, fromTo: string}[];
+  years: { from: number, to: number, fromTo: string }[];
   fullName: string;
 };
 
-const StudentPage: NextPage<Props> = ({years, fullName}) => {
+const StudentPage: NextPage<Props> = ({ years, fullName }) => {
 
   async function download(from: number, to: number) {
-    const {token} = nookies.get(null)
+    const { token } = nookies.get(null);
 
 
     const response = await fetch(process.env.NEXT_PUBLIC_API_AUTH + "/reports/" + fullName + "/" + from + "/" + to, { headers: { Authorization: "Bearer " + (token ?? "") } });
@@ -64,15 +65,17 @@ const StudentPage: NextPage<Props> = ({years, fullName}) => {
       title: "Action",
       dataIndex: "",
       key: "action",
-      render: (a, b) => <Button onClick={() => download(b.from, b.to)}>Télécharger les rapports</Button>
+      render: (a, b) => <Button onClick={ () => download(b.from, b.to) }>Télécharger les rapports</Button>
     },
   ];
 
   return (
     <Layout style={ { minHeight: "100vh" } }>
+      <Head><title>Rapports de { fullName }</title></Head>
       <Layout.Header>
         <Row justify="space-between">
-          <Col><Typography.Title style={ { color: "white" } } level={ 1 }>Rapports de {fullName}</Typography.Title></Col>
+          <Col><Typography.Title style={ { color: "white" } } level={ 1 }>Rapports
+            de { fullName }</Typography.Title></Col>
           <Col>
 
           </Col>
