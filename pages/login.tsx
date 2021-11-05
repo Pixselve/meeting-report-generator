@@ -3,6 +3,7 @@ import { Alert, Button, Form, Input, Typography } from "antd";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import nookies from "nookies";
+import Head from "next/head";
 
 
 type FormInputs = {
@@ -56,7 +57,9 @@ const Login: NextPage = () => {
       textAlign: "center"
     } }>
       <div style={ { maxWidth: "500px" } }>
-
+        <Head>
+          <title>Connexion</title>
+        </Head>
         <Typography.Title>Connexion</Typography.Title>
         <Form onFinish={ onFinish }>
           { errorMessage.length > 0 &&

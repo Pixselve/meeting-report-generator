@@ -3,6 +3,7 @@ import { AutoComplete, Button, Checkbox, DatePicker, Divider, Form, Input, Layou
 import nookies from "nookies";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import  Head  from "next/head";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   try {
@@ -78,6 +79,9 @@ const New: NextPage<Props> = ({ teachers, students }) => {
 
   return (
     <Layout style={ { minHeight: "100vh" } }>
+      <Head>
+        <title>Nouveau rapport</title>
+      </Head>
       <Layout.Header>
         <Typography.Title style={ { color: "white" } } level={ 1 }>Nouveau rapport</Typography.Title>
       </Layout.Header>
